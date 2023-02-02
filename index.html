@@ -23,13 +23,17 @@
                 <input id="cityInput" class="form-control" placeholder="City Name">
                 <button id="citySearchButton" class="btn btn-primary mt-2 w-100">Search</button>
               </form>
-              <ul class="list-group d-none">
+              <ul id="recentSearches" class="list-group d-none">
                 <li class="list-group-item">An item</li>
                 <li class="list-group-item">A second item</li>
               </ul>
             </div>
 
             <div id="todaysForcast" class="col-md-8 mh-25 border"></div>
+        </div>
+
+        <div class="row p-3">
+            <div id="forecastContainer" class="offset-md-4 col-md-8 border"></div>
         </div>
     </div>
 
@@ -50,6 +54,7 @@
     src="https://code.jquery.com/jquery-3.6.3.min.js"
     integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
     crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>
 </html>
