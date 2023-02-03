@@ -15,27 +15,36 @@
         <h1 class="text-end p-4 bg-primary text-light">Weather Dashboard</h1>
     </header>
     
-    <div>
-        <div class="row p-3">
-            <div class="col-12 col-md-4">
-              <h1 class="text-primary text-center">Search for a City</h1>
-              <form id="search-form" class="mb-2">
-                <input id="cityInput" class="form-control" placeholder="City Name">
-                <button id="citySearchButton" class="btn btn-primary mt-2 w-100">Search</button>
-              </form>
-              <ul id="recentSearches" class="list-group d-none">
-                <li class="list-group-item">An item</li>
-                <li class="list-group-item">A second item</li>
-              </ul>
+    <div class="container">
+        <div class="d-flex flex-row">
+            <div style="width: 33%;" class="col-4 p-3 ">
+                <div class="">
+                  <h1 class="text-primary text-center">Search for a City</h1>
+                  <form id="search-form" class="mb-2">
+                    <input id="cityInput" class="form-control" placeholder="City Name">
+                    <button id="citySearchButton" class="btn btn-primary mt-2 w-100">Search</button>
+                  </form>
+                </div>
+    
+                <div class="p-3">
+                    <ul id="recentSearches" class="list-group d-none">
+                        
+                    </ul>
+                </div>
             </div>
-
-            <div id="todaysForcast" class="col-md-8 mh-25 border"></div>
-        </div>
-
-        <div class="row p-3">
-            <div id="forecastContainer" class="offset-md-4 col-md-8 border"></div>
+    
+            <div class="col-8 p-3">
+                <div id="todaysForcast" class="border mb-5"></div>
+        
+                <div class="">
+                    <div id="forecastContainer" class="d-flex flex-wrap"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+        
+
 
 
 
@@ -50,11 +59,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" 
     crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.6.3.min.js"
     integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
     crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>
 </html>
