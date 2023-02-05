@@ -118,7 +118,7 @@ function createWeatherForecast(obj, i) {
 
 function fetchGeoData(cityName) { 
     console.log(cityName)
-    var url = 'http://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3'
+    var url = 'https://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3'
     
     fetch(url).then(function (response) {
         if (response.ok) {
@@ -138,7 +138,7 @@ function fetchGeoData(cityName) {
 }
 
 function fetchTodayWeather(lat, lon) {
-    fetch('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
+    fetch('https://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
     .then((response) => response.json())
     .then((data) => {
         // console.log(data)
@@ -170,7 +170,7 @@ function fetchTodayWeather(lat, lon) {
 }
 
 function fetchForecastWeather(lat, lon) {
-    fetch('http://api.openweathermap.org/data/2.5/forecast?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
+    fetch('https://api.openweathermap.org/data/2.5/forecast?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
     .then((response) => response.json())
     .then((data) => {
         console.log(data)
