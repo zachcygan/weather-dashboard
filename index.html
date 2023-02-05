@@ -19,7 +19,7 @@
     <div class="container">
         <div class="d-flex flex-row">
             <div style="width: 33%;" class="col-4 p-3 ">
-                <div class="">
+                <div id="searchCityContainer" class="pb-3">
                   <h1 class="text-primary text-center">Search for a City</h1>
                   <form id="search-form" class="mb-2">
                     <input id="cityInput" class="form-control" placeholder="City Name">
@@ -35,9 +35,10 @@
             </div>
     
             <div class="col-8 p-3">
-                <div id="todaysForcast" class="border mb-5 p-3"></div>
+                <div id="todaysForcast" class="mb-5 p-3"></div>
         
                 <div class="">
+                    <h4 id="forecastTitle" class="d-none">5-Day Forecast:</h4>
                     <div id="forecastContainer" class="d-flex flex-wrap"></div>
                 </div>
             </div>

@@ -8,11 +8,29 @@
 }
   
 .close:hover {
-    background: #bbb;
+    background: rgb(216, 49, 49);
+}
+
+.custom-list {
+   background-color: #bbb;
 }
 
 .custom-list:hover {
     cursor: pointer;
     background-color: #2979ff;
+    font-weight: bold;
+}
+
+#searchCityContainer {
+    border-bottom: 2px solid black;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: bold;
 }
 

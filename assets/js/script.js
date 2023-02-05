@@ -3,6 +3,7 @@ var $citySearch = $('#cityInput');
 var $searchButton = $('#citySearchButton');
 var $recentSearches = $('#recentSearches');
 var $forecastContainer = $('#forecastContainer');
+var $forecastTitle = $('#forecastTitle');
 
 function searchCity(event) {
     var searchedCities = JSON.parse(localStorage.getItem('city')) || [];
@@ -13,7 +14,6 @@ function searchCity(event) {
     }
 
     City = $citySearch.val().trim();
-
 
     if(searchedCities.length >= 1 && !searchedCities.includes(City)) {
         console.log(searchedCities)
@@ -35,8 +35,9 @@ function searchCity(event) {
         listItem.text(searchedCities[i]);
 
         // Searches the city when clicked on from recent searches
+        // use .click instead of .on to allow for parameters
         listItem.click({param: searchedCities[i]}, function(event) {
-            console.log(event.data.param);
+            // console.log(event.data.param) the value of the li that is clicked
             fetchData(event.data.param);
             $citySearch.val(searchedCities[i]);
         })
@@ -46,17 +47,19 @@ function searchCity(event) {
         listItem.append(closeButton);
 
         closeButton.click({param: searchedCities[i]}, function(event) {
-            console.log(event.data.param);
+            // console.log(event.data.param) = what value is on the li that is clicked
             var closeArr = JSON.parse(localStorage.getItem('city'));
 
             // closeArr.splice(searchedCities[i], 0)
             // closeArr.
             var value = event.data.param;
+            // filters out the item that the user removed
+            // a function with the item parameter
             closeArr = closeArr.filter(item => item !== value)
             localStorage.setItem('city', JSON.stringify(closeArr));
 
-            // remove from UI
             var btnClicked = $(event.target);
+            // removes the parent li of the button
             btnClicked.parent('li').remove();
         })
     }
@@ -86,6 +89,7 @@ function createWeatherForecast(obj, i) {
     // bodyTextTitle.text(dayjs().day(i).format('MM/DD/YYYY'));
     bodyTextTitle.text(obj.date.split(' ', 1));
 
+    $forecastTitle.removeClass('d-none')
     forecastTemp.text('Temp: ' + obj.temp + '°F');
     forecastFeelsLike.text('Feels like: ' + obj.feelsLike + '°F');
     forecastWind.text('Wind: ' + obj.wind + 'mph');
@@ -188,12 +192,25 @@ function fetchForecastWeather(lat, lon) {
     });
 }
 
-async function fetchData(cityName, cord) {
+function fetchData(cityName) {
     fetchGeoData(cityName)
-    // grabbed from return object
-    
+}
 
+function init() {
+    var localStorageTemp = JSON.parse(localStorage.getItem('city'));
+
+    for (var i = 0; i < localStorageTemp.length; i++) {
+        var initListItem = $('<li>').addClass('list-group-item text-center custom-list');
+        var initCloseButton = $('<div>').addClass('close');
+        initCloseButton.text('x');
+        initListItem.text(localStorageTemp[i]);
+
+        initListItem.append(initCloseButton);
+        $recentSearches.append(initListItem);
+        $recentSearches.removeClass('d-none')
+    }
 }
 
 $searchButton.on('click', searchCity);
+init();
 
