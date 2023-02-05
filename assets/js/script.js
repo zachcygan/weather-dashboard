@@ -4,6 +4,9 @@ var $searchButton = $('#citySearchButton');
 var $recentSearches = $('#recentSearches');
 var $forecastContainer = $('#forecastContainer');
 var $forecastTitle = $('#forecastTitle');
+var $otherOptions = $('#otherOptions');
+var firstRun = true;
+
 
 function searchCity(event) {
     var searchedCities = JSON.parse(localStorage.getItem('city')) || [];
@@ -114,22 +117,36 @@ function createWeatherForecast(obj, i) {
     $forecastContainer.append(forecastContainer);
 }
 
-
-
-function fetchGeoData(cityName) { 
+function fetchGeoData(cityName, country = null) { 
     console.log(cityName)
     var url = 'https://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3'
-    
+
     fetch(url).then(function (response) {
         if (response.ok) {
             response.json().then(function(data) {
-                console.log(data)
 
-                var locationLat = data[0].lat;
-                var locationLon = data[0].lon;
+                if(data.length > 0) {
+                    console.log(data)
 
-                fetchTodayWeather(locationLat, locationLon);
-                fetchForecastWeather(locationLat, locationLon);
+                    // firstRun = true;
+
+                    deleteOtherOptions();
+
+                    for (var i = 0; i < data.length; i++) {
+                        var locationLat = data[0].lat;
+                        var locationLon = data[0].lon;
+
+                        if(i === 0) {
+                            fetchTodayWeather(locationLat, locationLon, data[i].state);
+                            fetchForecastWeather(locationLat, locationLon);
+                        }
+
+                        if(i !== 0) {
+                            generateOptions(data[i]);
+                        }
+                    }         
+                    return;           
+                }
             })
         } else {
             return;
@@ -137,13 +154,16 @@ function fetchGeoData(cityName) {
     })
 }
 
-function fetchTodayWeather(lat, lon) {
+function fetchTodayWeather(lat, lon, state) {
     fetch('https://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
     .then((response) => response.json())
     .then((data) => {
-        // console.log(data)
+        console.log(data)
 
         var cityName = data.name;
+
+        
+
         var temp = data.main.temp + '°F';
         var windSpeed = data.wind.speed + 'mph';
         var humidity = data.main.humidity + '%';
@@ -152,17 +172,26 @@ function fetchTodayWeather(lat, lon) {
         if($todaysForcast.children()) {
             $todaysForcast.empty()
         }
+
+        var currentWeatherIcon = $('<img>');
+        var weatherIcon = 'https://openweathermap.org/img/wn/' + data.weather[0].icon + '@2x.png';
+        
+        currentWeatherIcon.attr('src', weatherIcon);
+        currentWeatherIcon.css('width', '50px');
+        
+
         var currentCity = $('<h1>');
         var currentTemp = $('<p>');
         var currentWind = $('<p>');
         var currentHumidity = $('<p>');
 
         $todaysForcast.append(currentCity);
+        $todaysForcast.append(currentWeatherIcon);
         $todaysForcast.append(currentTemp);
         $todaysForcast.append(currentWind);
         $todaysForcast.append(currentHumidity);
 
-        currentCity.text(cityName + ' (' + dayjs().format('MM/DD/YYYY') + ')');
+        currentCity.text(cityName + ', ' + state + ' (' + dayjs().format('MM/DD/YYYY') + ')');
         currentTemp.text('Temp: ' + temp);
         currentWind.text('Wind: ' + windSpeed);
         currentHumidity.text('Humidity: ' + humidity);
@@ -200,6 +229,33 @@ function fetchForecastWeather(lat, lon) {
     });
 }
 
+function deleteOtherOptions() {
+    if($otherOptions.children()) {
+        $otherOptions.empty();
+    }
+}
+
+function generateOptions(data) {
+    console.log('genOptions: ', data)
+    var stateID = data.state;
+    var cityName = data.name;
+
+    var otherOptionsButtons = $('<div>').addClass('btn btn-primary badge badge-pill mb-2');
+
+    otherOptionsButtons.text(cityName + ', ' + stateID);
+    $otherOptions.append(otherOptionsButtons);
+
+    otherOptionsButtons.click(data, function(event) {
+        event.preventDefault()
+        console.log(data)
+
+        fetchGeoData(cityName);
+        fetchTodayWeather(data.lat, data.lon, data.state);
+        fetchForecastWeather(data.lat, data.lon);
+    })
+
+}
+
 function fetchData(cityName) {
     fetchGeoData(cityName)
 }
@@ -215,7 +271,7 @@ function init() {
 
         initListItem.append(initCloseButton);
         $recentSearches.append(initListItem);
-        $recentSearches.removeClass('d-none')
+        $recentSearches.removeClass('d-none');
 
         initListItem.click({param: localStorageTemp[i]}, function(event) {
             // console.log(event.data.param) the value of the li that is clicked
@@ -223,25 +279,23 @@ function init() {
             $citySearch.val(localStorageTemp[i]);
         })
 
-        // closeButton.click({param: searchedCities[i]}, function(event) {
-        //     // console.log(event.data.param) = what value is on the li that is clicked
-        //     var closeArr = JSON.parse(localStorage.getItem('city'));
+        initCloseButton.click({param: localStorageTemp[i]}, function(event) {
+            // console.log(event.data.param) = what value is on the li that is clicked
+            var closeArr = JSON.parse(localStorage.getItem('city'));
 
-        //     // closeArr.splice(searchedCities[i], 0)
-        //     // closeArr.
-        //     var value = event.data.param;
-        //     // filters out the item that the user removed
-        //     // a function with the item parameter
-        //     closeArr = closeArr.filter(item => item !== value)
-        //     localStorage.setItem('city', JSON.stringify(closeArr));
+            // closeArr.splice(searchedCities[i], 0)
+            // closeArr.
+            var value = event.data.param;
+            // filters out the item that the user removed
+            // a function with the item parameter
+            closeArr = closeArr.filter(item => item !== value)
+            localStorage.setItem('city', JSON.stringify(closeArr));
 
-        //     var btnClicked = $(event.target);
-        //     // removes the parent li of the button
-        //     btnClicked.parent('li').remove();
-        // })
+            var btnClicked = $(event.target);
+            // removes the parent li of the button
+            btnClicked.parent('li').remove();
+        })
     }
-
-    
 }
 
 $searchButton.on('click', searchCity);
