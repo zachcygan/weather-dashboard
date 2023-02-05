@@ -29,9 +29,8 @@ function searchCity(event) {
             $recentSearches.empty()
         }
 
-        var listItem = $('<li>').addClass('list-group-item text-center');
+        var listItem = $('<li>').addClass('list-group-item text-center custom-list');
         var closeButton = $('<div>').addClass('close');
-        console.log(closeButton)
         closeButton.text('x');
         listItem.text(searchedCities[i]);
 
@@ -50,12 +49,15 @@ function searchCity(event) {
             console.log(event.data.param);
             var closeArr = JSON.parse(localStorage.getItem('city'));
 
-            closeArr.splice(searchedCities[i], 1)
+            // closeArr.splice(searchedCities[i], 0)
+            // closeArr.
+            var value = event.data.param;
+            closeArr = closeArr.filter(item => item !== value)
             localStorage.setItem('city', JSON.stringify(closeArr));
 
             // remove from UI
-            // removes an element, but the not the one we want
-            $recentSearches.remove(searchedCities[i]);
+            var btnClicked = $(event.target);
+            btnClicked.parent('li').remove();
         })
     }
 
