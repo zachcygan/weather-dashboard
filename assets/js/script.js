@@ -114,19 +114,27 @@ function createWeatherForecast(obj, i) {
     $forecastContainer.append(forecastContainer);
 }
 
+
+
 function fetchGeoData(cityName) { 
     console.log(cityName)
-    fetch('http://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3')
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data)
+    var url = 'http://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3'
+    
+    fetch(url).then(function (response) {
+        if (response.ok) {
+            response.json().then(function(data) {
+                console.log(data)
 
-      var locationLat = data[0].lat;
-      var locationLon = data[0].lon;
+                var locationLat = data[0].lat;
+                var locationLon = data[0].lon;
 
-      fetchTodayWeather(locationLat, locationLon);
-      fetchForecastWeather(locationLat, locationLon);
-  });
+                fetchTodayWeather(locationLat, locationLon);
+                fetchForecastWeather(locationLat, locationLon);
+            })
+        } else {
+            return;
+        }
+    })
 }
 
 function fetchTodayWeather(lat, lon) {
@@ -208,6 +216,12 @@ function init() {
         initListItem.append(initCloseButton);
         $recentSearches.append(initListItem);
         $recentSearches.removeClass('d-none')
+
+        initListItem.click({param: localStorageTemp[i]}, function(event) {
+            // console.log(event.data.param) the value of the li that is clicked
+            fetchData(event.data.param);
+            $citySearch.val(localStorageTemp[i]);
+        })
     }
 }
 
