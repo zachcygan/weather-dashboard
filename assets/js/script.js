@@ -3,20 +3,63 @@ var $citySearch = $('#cityInput');
 var $searchButton = $('#citySearchButton');
 var $recentSearches = $('#recentSearches');
 var $forecastContainer = $('#forecastContainer');
-var selectedCity;
 
-function saveCityName(event) {
+function searchCity(event) {
+    var searchedCities = JSON.parse(localStorage.getItem('city')) || [];
     event.preventDefault();
 
-    selectedCity = $citySearch.val().trim();
+    if($citySearch.val().trim() === '') {
+        return;
+    }
 
-    var listItem = $('<li>').addClass('list-group-item text-center');
-    listItem.text(selectedCity);
+    City = $citySearch.val().trim();
 
-    $recentSearches.removeClass('d-none')
-    $recentSearches.append(listItem);
 
-    fetchData();
+    if(searchedCities.length >= 1 && !searchedCities.includes(City)) {
+        console.log(searchedCities)
+        searchedCities.push(City);
+        localStorage.setItem('city', JSON.stringify(searchedCities));
+    } else if (searchedCities.length === 0){
+        searchedCities[0] = City;
+        localStorage.setItem('city', JSON.stringify(searchedCities));
+    }
+
+    for (var i = 0; i < searchedCities.length; i++) {
+        if(i === 0 && $recentSearches.children().length >= 1) {
+            $recentSearches.empty()
+        }
+
+        var listItem = $('<li>').addClass('list-group-item text-center');
+        var closeButton = $('<div>').addClass('close');
+        console.log(closeButton)
+        closeButton.text('x');
+        listItem.text(searchedCities[i]);
+
+        // Searches the city when clicked on from recent searches
+        listItem.click({param: searchedCities[i]}, function(event) {
+            console.log(event.data.param);
+            fetchData(event.data.param);
+            $citySearch.val(searchedCities[i]);
+        })
+
+        $recentSearches.removeClass('d-none')
+        $recentSearches.append(listItem);
+        listItem.append(closeButton);
+
+        closeButton.click({param: searchedCities[i]}, function(event) {
+            console.log(event.data.param);
+            var closeArr = JSON.parse(localStorage.getItem('city'));
+
+            closeArr.splice(searchedCities[i], 1)
+            localStorage.setItem('city', JSON.stringify(closeArr));
+
+            // remove from UI
+            // removes an element, but the not the one we want
+            $recentSearches.remove(searchedCities[i]);
+        })
+    }
+
+    fetchData(City);
     // setInterval(fetchData, 1000);
 }
 
@@ -38,18 +81,15 @@ function createWeatherForecast(obj, i) {
     photoCardImage.attr('src', forecastPhoto);
     photoCardImage.css('width', '50px')
 
-    bodyTextTitle.text(dayjs().day(i+6).format('MM/DD/YYYY'));
+    // bodyTextTitle.text(dayjs().day(i).format('MM/DD/YYYY'));
+    bodyTextTitle.text(obj.date.split(' ', 1));
+
     forecastTemp.text('Temp: ' + obj.temp + '°F');
     forecastFeelsLike.text('Feels like: ' + obj.feelsLike + '°F');
     forecastWind.text('Wind: ' + obj.wind + 'mph');
     forecastHumidity.text('Humidity: ' + obj.humidity + '%');
 
-    forecastContainer.addClass('card');
-    forecastContainer.addClass('bg-primary');
-    forecastContainer.addClass('p-2');
-    forecastContainer.addClass('m-2');
-    forecastContainer.addClass('text-light');
-    forecastContainer.addClass('flex-grow-1');
+    forecastContainer.addClass(['card', 'bg-primary', 'p-2', 'm-2', 'text-light', 'flex-grow-1']);
     forecastContainer.css('max-width', '50%')
     forecastBodyContainer.addClass('card-body');
     photoCardImage.addClass('card-img-top');
@@ -57,8 +97,6 @@ function createWeatherForecast(obj, i) {
     forecastFeelsLike.addClass('card-text')
     forecastWind.addClass('card-text')
     forecastHumidity.addClass('card-text')
-
-    
 
     forecastContainer.append(forecastBodyContainer);
     forecastContainer.append(photoCardImage);
@@ -70,85 +108,90 @@ function createWeatherForecast(obj, i) {
     $forecastContainer.append(forecastContainer);
 }
 
-function fetchData() {
-    fetch('http://api.openweathermap.org/geo/1.0/direct?q=' + selectedCity + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3')
-      .then((response) => response.json())
-      .then((data) => {
-        // console.log(data)
+function fetchGeoData(cityName) { 
+    console.log(cityName)
+    fetch('http://api.openweathermap.org/geo/1.0/direct?q=' + cityName + '&limit=5&appid=9d7ee1a0c89726386b718cd593b3c6c3')
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data)
 
-        var locationLat = data[0].lat;
-        var locationLon = data[0].lon;
+      var locationLat = data[0].lat;
+      var locationLon = data[0].lon;
 
-        // rounds number to nearest .00 decimale place
-        locationLat = Math.round(locationLat*100)/100;
-        locationLon = Math.round(locationLon*100)/100;
-        
-        fetch('http://api.openweathermap.org/data/2.5/weather?lat=' + locationLat + '&lon=' + locationLon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
-            .then((response) => response.json())
-            .then((data) => {
-                // console.log(data)
-
-                var cityName = data.name;
-                var temp = data.main.temp + '°F';
-                var windSpeed = data.wind.speed + 'mph';
-                var humidity = data.main.humidity + '%';
-
-                // console.log($recentSearches.children())
-
-                // if children already exist, delete them
-                if($todaysForcast.children()) {
-                    $todaysForcast.empty()
-                }
-
-                var currentCity = $('<h1>');
-                var currentTemp = $('<p>');
-                var currentWind = $('<p>');
-                var currentHumidity = $('<p>');
-
-                $todaysForcast.append(currentCity);
-                $todaysForcast.append(currentTemp);
-                $todaysForcast.append(currentWind);
-                $todaysForcast.append(currentHumidity);
-
-                currentCity.text(cityName + ' (' + dayjs().format('MM/DD/YYYY') + ')');
-                currentTemp.text('Temp: ' + temp);
-                currentWind.text('Wind: ' + windSpeed);
-                currentHumidity.text('Humidity: ' + humidity);
-            });
-
-            fetch('http://api.openweathermap.org/data/2.5/forecast?lat=' + locationLat + '&lon=' + locationLon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data)
-                var dataArr = []
-
-                
-                data.list.forEach(item => {
-                    if(item.dt_txt.includes('00:00:00')) {
-                        // stores the values from the targeted time into dataArr
-                        dataArr.push(item);
-                    }
-                })
-
-                console.log(dataArr)
-
-                for (var i = 0; i < dataArr.length; i++) {
-                    var forecastTemperatures = {
-                        temp: data.list[i].main.temp,
-                        feelsLike: data.list[i].main.feels_like,
-                        wind: data.list[i].wind.speed,
-                        humidity: data.list[i].main.humidity,
-                        weather: data.list[i].weather[0],
-                    }
-
-                    createWeatherForecast(forecastTemperatures, i);
-                }
-            });
-    });
-    
-    
+      fetchTodayWeather(locationLat, locationLon);
+      fetchForecastWeather(locationLat, locationLon);
+  });
 }
 
+function fetchTodayWeather(lat, lon) {
+    fetch('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
+    .then((response) => response.json())
+    .then((data) => {
+        // console.log(data)
 
-$searchButton.on('click', saveCityName);
+        var cityName = data.name;
+        var temp = data.main.temp + '°F';
+        var windSpeed = data.wind.speed + 'mph';
+        var humidity = data.main.humidity + '%';
+
+        // if children already exist, delete them
+        if($todaysForcast.children()) {
+            $todaysForcast.empty()
+        }
+        var currentCity = $('<h1>');
+        var currentTemp = $('<p>');
+        var currentWind = $('<p>');
+        var currentHumidity = $('<p>');
+
+        $todaysForcast.append(currentCity);
+        $todaysForcast.append(currentTemp);
+        $todaysForcast.append(currentWind);
+        $todaysForcast.append(currentHumidity);
+
+        currentCity.text(cityName + ' (' + dayjs().format('MM/DD/YYYY') + ')');
+        currentTemp.text('Temp: ' + temp);
+        currentWind.text('Wind: ' + windSpeed);
+        currentHumidity.text('Humidity: ' + humidity);
+    });
+}
+
+function fetchForecastWeather(lat, lon) {
+    fetch('http://api.openweathermap.org/data/2.5/forecast?lat=' + lat + '&lon=' + lon + '&appid=9d7ee1a0c89726386b718cd593b3c6c3&units=imperial')
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data)
+        var dataArr = []
+
+        data.list.forEach(item => {
+            if(item.dt_txt.includes('12:00:00')) {
+                // stores the values from the targeted time into dataArr
+                dataArr.push(item);
+            }
+        })
+
+        console.log(dataArr)
+
+        for (var i = 0; i < dataArr.length; i++) {
+            var forecastTemperatures = {
+                temp: dataArr[i].main.temp,
+                feelsLike: dataArr[i].main.feels_like,
+                wind: dataArr[i].wind.speed,
+                humidity: dataArr[i].main.humidity,
+                weather: dataArr[i].weather[0],
+                date: dataArr[i].dt_txt,
+            }
+
+            createWeatherForecast(forecastTemperatures, i);
+        }
+    });
+}
+
+async function fetchData(cityName, cord) {
+    fetchGeoData(cityName)
+    // grabbed from return object
+    
+
+}
+
+$searchButton.on('click', searchCity);
 
