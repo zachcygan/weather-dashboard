@@ -222,7 +222,26 @@ function init() {
             fetchData(event.data.param);
             $citySearch.val(localStorageTemp[i]);
         })
+
+        // closeButton.click({param: searchedCities[i]}, function(event) {
+        //     // console.log(event.data.param) = what value is on the li that is clicked
+        //     var closeArr = JSON.parse(localStorage.getItem('city'));
+
+        //     // closeArr.splice(searchedCities[i], 0)
+        //     // closeArr.
+        //     var value = event.data.param;
+        //     // filters out the item that the user removed
+        //     // a function with the item parameter
+        //     closeArr = closeArr.filter(item => item !== value)
+        //     localStorage.setItem('city', JSON.stringify(closeArr));
+
+        //     var btnClicked = $(event.target);
+        //     // removes the parent li of the button
+        //     btnClicked.parent('li').remove();
+        // })
     }
+
+    
 }
 
 $searchButton.on('click', searchCity);
