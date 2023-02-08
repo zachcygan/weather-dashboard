@@ -185,6 +185,7 @@ function fetchTodayWeather(lat, lon, state) {
         var currentWind = $('<p>');
         var currentHumidity = $('<p>');
 
+        $todaysForcast.removeClass('d-none');
         $todaysForcast.append(currentCity);
         $todaysForcast.append(currentWeatherIcon);
         $todaysForcast.append(currentTemp);
@@ -249,9 +250,12 @@ function generateOptions(data) {
         event.preventDefault()
         console.log(data)
 
+        // otherOptionsButtons.text(cityName + ', ' + stateID);
         fetchGeoData(cityName);
         fetchTodayWeather(data.lat, data.lon, data.state);
         fetchForecastWeather(data.lat, data.lon);
+        
+        generateOptions(data)
     })
 
 }
